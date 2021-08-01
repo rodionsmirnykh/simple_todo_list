@@ -1,10 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TaskCard extends StatelessWidget {
+  final String id;
   final String taskLabel;
+  final Function func;
 
-  TaskCard(this.taskLabel);
+  TaskCard(this.id, this.taskLabel, this.func);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,9 @@ class TaskCard extends StatelessWidget {
                   ),
                   Container(
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        func(id);
+                      },
                       icon: Icon(Icons.close),
                       alignment: Alignment.centerRight,
                     ),

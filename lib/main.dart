@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:simple_todo_list/task_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:simple_todo_list/task_list.dart';
 
 void main() {
   runApp(ToDoApp());
@@ -9,11 +11,11 @@ class ToDoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'simple todo list',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Simple todo list'),
     );
   }
 }
@@ -27,38 +29,45 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<TaskCard> taskCards = [
-    TaskCard('task_card1'),
-    TaskCard('task_card3'),
-    TaskCard('task_card2'),
-  ];
+  void setNewCard(String cardLabel) async {
+    Map<String, dynamic> tasks = {};
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String str = prefs.getString('tasks') ?? '';
+    if (str.isNotEmpty) {
+      tasks = json.decode(prefs.getString('tasks') ?? '');
+    }
 
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    tasks[DateTime.now().toString()] = cardLabel;
+    prefs.setString('tasks', json.encode(tasks));
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final newTaskTextController = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(
-        child: Column(
-          children: taskCards.map((card) {
-            return card;
-          }).toList(),
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
-    );
+        body: Container(
+            padding: EdgeInsets.all(5),
+            child: Column(children: [
+              Container(
+                child: TextField(
+                  controller: newTaskTextController,
+                  decoration: InputDecoration(
+                    hintText: 'Write new task',
+                  ),
+                  onSubmitted: (_) {
+                    setNewCard(newTaskTextController.text);
+                  },
+                ),
+              ),
+              TaskList(),
+            ])));
   }
 }
+
+/*
+*/
